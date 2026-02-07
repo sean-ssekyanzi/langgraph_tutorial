@@ -31,3 +31,4 @@ state = graph.invoke({"messages": [{"role":"user", "content":user_input}]})
 print(state["messages"][-1].content)
 
 #test 123
+print("chore test ")
