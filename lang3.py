@@ -36,7 +36,25 @@ def llm_chatbot(state:State):
     # invoke the LLM with the current message history 
     return {'messages':[llm_with_tool.invoke(state['messages'])]}
 
-#Toolnode will run the tools reqquested by the last AI message
+#Toolnode will run the tools requested by the last AI message
 #if there multiple tools called, it will run in parallel
 tool_node = ToolNode(tools_list)#Accepts a list of tools
+
+#Build the StateGraph
+build = StateGraph(State)
+build.add_node('LLM', llm_chatbot)
+build.add_node('tools', tool_node)#Node to execute tools 
+
+build.add_edge(START, 'LLM')#Start by sending user input to the LLM
+
+#add conditional edge from 'LLM'
+build.add_conditional_edges("LLM",
+                            tools_condition,)
+
+build.add_edge('tools','LLM')
+
+app = build.compile()
+
+
+
 
