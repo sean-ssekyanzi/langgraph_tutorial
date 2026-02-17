@@ -48,12 +48,29 @@ build.add_node('tools', tool_node)#Node to execute tools
 build.add_edge(START, 'LLM')#Start by sending user input to the LLM
 
 #add conditional edge from 'LLM'
-build.add_conditional_edges("LLM",
-                            tools_condition,)
+build.add_conditional_edges(
+    "LLM",
+    tools_condition,
+    {"tools": "tools", END: END}  # Explicitly define where to go
+)
 
 build.add_edge('tools','LLM')
 
 app = build.compile()
+
+# Add input handling for multi-turn support
+def main():
+    while True:
+        user_input = input("You: ").strip()
+        if not user_input.lower() in ["exit", "quit"]:
+            break
+        
+        messages = [HumanMessage(content=user_input)]
+        response = app.invoke({"messages": messages})
+        print(f"Assistant: {response['messages'][-1].content}")
+
+if __name__ == "__main__":
+    main()
 
 
 
